@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx
+spec:
+  replicas: 5 # ensures that 5 pods are running at any point in time.
+  selector: # used to determine deployment membership: any pod with a label app=nginx is a member of this depolyment.
+    matchLabels:
+      app: nginx
+  template: # used to create pods associated with the deployment.
+    metadata:
+      labels: # assigns each pod a label app=nginx.
+        app: nginx
+    spec:
+      containers:
+      - name: nginx
+        image: nginx
+        resources:
+          limits: # The container should not exceed the above resource limits.
+            memory: "128Mi"
+            cpu: "500m"
+        ports:
+        - containerPort: 3000
+
