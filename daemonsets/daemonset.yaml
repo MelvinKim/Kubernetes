@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: hello-world-ds
+spec:
+  selector: # used to determine DaemonSet membership: any pod with a label app=hello-world-app is a member of this DaemonSet.
+    matchLabels:
+      app: hello-world-app
+  template: # used to create pods associated with the DaemonSet.
+    metadata:
+      labels: # assigns each pod a label app=hello-world-app
+        app: hello-world-app
+    spec:
+      containers:
+      - name: hello-world
+        image: gcr.io/google-samples/hello-app:1.0
+        resources:
+          limits: # The container should not exceed the above resource limits.
+            memory: "128Mi"
+            cpu: "500m"
+        ports:
+        - containerPort: 3000
+
