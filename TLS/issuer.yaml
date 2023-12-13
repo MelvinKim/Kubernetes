@@ -1,0 +1,14 @@
+apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+  name: acme-lets-encrypt
+spec:
+  acme:
+    server: https://acme-v02.api.letsencrypt.org/directory
+    privateKeySecretRef:
+      name: acme-lets-encrypt
+    email: <email address>
+    solvers:
+    - http01:
+        ingress:
+          class: nginx

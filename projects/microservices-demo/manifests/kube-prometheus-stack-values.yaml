@@ -1,0 +1,18 @@
+grafana:
+  adminPassword: admin
+
+alertmanager:
+  config:
+    route: 
+      group_by: ['alertname', 'severity']
+      receiver: 'slack-notifications'
+    receivers:
+    - name: "null"
+    - name: 'slack-notifications'
+      slack_configs:
+      - api_url: https://hooks.slack.com/services/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
+        channel: '#critical-prod-alerts' 
+        send_resolved: true
+    alertmanagerConfigSelector:
+      matchlabels:
+        resource: prometheus

@@ -1,0 +1,68 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: node-memory-alert
+  labels:
+    release: prometheus
+spec:
+  groups:
+  - name: node_memory_alert.rules
+    rules:
+    - alert: HighNodeMemoryUtilization
+      expr: (node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes) / node_memory_MemTotal_bytes > 0.2
+      for: 1m
+      labels:
+        severity: warning
+      annotations:
+        summary: "High memory utilization on node {{ $labels.instance }}"
+        description: "Memory utilization on node {{ $labels.instance }} is above 20%."
+        message: "Hign memory utilization on node {{ $labels.instance }}. Memory utilization is above 20%"
+---
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: node-cpu-alert
+  labels:
+    release: prometheus
+spec:
+  groups:
+  - name: node_cpu_alert.rules
+    rules:
+    - alert: HighNodeCPUUtilization
+      expr: 100 - (avg by (instance) (irate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 80
+      for: 1m
+      labels:
+        severity: warning
+      annotations:
+        summary: "High CPU utilization on node {{ $labels.instance }}"
+        description: "CPU utilization on node {{ $labels.instance }} is above 20%."
+        message: "Hign CPU utilization on node {{ $labels.instance }}. CPU utilization is above 20%"
+--- 
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  labels:
+    release: prometheus
+  name: pod-alert-rules
+spec:
+  groups:
+    - name: nginx
+      rules:
+        - alert: HighPodCPUUsage
+          expr: (sum(rate(container_cpu_usage_seconds_total{container_name!="POD"}[2m])) / sum(machine_cpu_cores)) * 100 > 5
+          for: 1m
+          labels:
+            severity: warning
+          annotations:
+            summary: High CPU Usage
+            description: CPU usage is above 5%
+            message: "High pod CPU utilization on node {{ $labels.instance }}. CPU utilization is above 5%"
+        - alert: HighPodMemoryUsage
+          expr: (sum(container_memory_usage_bytes{container_name!="POD"}) / sum(machine_memory_bytes)) * 100 > 5
+          for: 1m
+          labels:
+            severity: warning
+          annotations:
+            summary: High Memory Usage
+            description: Memory usage is above 5%
+            message: "Hign memory utilization on node {{ $labels.instance }}. Memory utilization is above 5%"

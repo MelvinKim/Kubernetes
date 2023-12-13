@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: myapp
+spec:
+  selector:
+    matchLabels:
+      app: myapp
+  template:
+    metadata:
+      labels:
+        app: myapp
+    spec:
+      # exposing a configmap as a volume
+      volumes:
+        - name: appconfig
+          configMap:
+            name: app1
+      containers:
+      - name: myapp
+        image: <image-name>
+        # passing the envs defined in a configmap to a pod.
+        envFrom:
+          - configMapRef:
+              name: appconfig
+        # referencing the configmap exposed as a volume mount
+        volumeMounts:
+          - name:  appconfig
+            mountPath: "/etc/appconfig"
+        resources:
+          limits:
+            memory: "128Mi"
+            cpu: "500m"
+        ports:
+        - containerPort: 3000
